@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Idle Mining Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #1b1b1b;
+      color: #f0f0f0;
+      text-align: center;
+      padding: 30px;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    .unit {
+      background: #2b2b2b;
+      border: 2px solid #444;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px auto;
+      max-width: 400px;
+      box-shadow: 0 0 10px rgba(255,255,255,0.1);
+    }
+
+    .unit img {
+      width: 30%;
+      border-radius: 8px;
+    }
+
+    .unit h2 {
+      margin: 10px 0 5px;
+      font-size: 22px;
+    }
+
+    .unit p {
+      margin: 5px 0;
+      font-size: 16px;
+    }
+
+    .btn, .collect-btn {
+      background: #ff7f00;
+      color: #fff;
+      padding: 8px 16px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .btn:hover, .collect-btn:hover {
+      background: #e66f00;
+    }
+
+    .collect-btn {
+  margin-left: -821px;
+  position: fixed;
+}
+
+#yen-counter {
+  position: fixed;
+  top: 100px;
+  right: 1670px;
+}
+
+  </style>
+</head>
+<body>
+
+  <h1>MyIdleHero</h1>
+  <div id="yen-counter">💰 Yen: 0</div>
+  <button class="collect-btn" onclick="collectGold()">💰 Gold sammeln</button>
+<audio id="bg-music" loop>
+  <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" type="audio/mpeg">
+</audio>
+
+
+  <div class="unit">
+    <img src="https://static.wikia.nocookie.net/my-hero/images/9/91/Mashirao_Ojiro_Ganzk%C3%B6rper_Uniform.png/revision/latest/scale-to-width/360?cb=20180127002550&path-prefix=de" alt="Miner" />
+    <h2>Luke</h2>
+    <p>Ein Huanson der was Kompensieren muss!</p>
+    <p><strong>Ertrag:</strong> +0,1 Yen / Sekunde</p>
+    <p><strong>Anzahl:</strong> <span id="miner-count">0</span></p>
+    <button class="btn" id="miner-button" onclick="buyUnit('miner')">Upgraden (15 Yen)</button>
+  </div>
+
+  <div class="unit">
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_cP5N_Fi3CVMUi6rDBRdqewaDaxhst_lx9w&s" alt="Excavator" />
+    <h2>Ein Scheißhaufen</h2>
+    <p>Einfach nur ein Scheißhaufen, nicht mehr, nicht weniger!</p>
+    <p><strong>Ertrag:</strong> +1 Yen / Sekunde</p>
+    <p><strong>Anzahl:</strong> <span id="excavator-count">0</span></p>
+    <button class="btn" id="excavator-button" onclick="buyUnit('excavator')">Upgraden (100 Yen)</button>
+  </div>
+
+  <div class="unit">
+    <img src="https://static.wikia.nocookie.net/bokunoheroacademia/images/e/e3/Pony_Tsunotori_Hero_Costume_%28Anime%29.png/revision/latest?cb=20210506003711" alt="Pony Tsunotori" />
+    <h2>Pony Tsunotori</h2>
+    <p>Tötet es bevor es Eier legt.</p>
+    <p><strong>Ertrag:</strong> +8 Yen / Sekunde</p>
+    <p><strong>Anzahl:</strong> <span id="drillbot-count">0</span></p>
+    <button class="btn" id="drillbot-button" onclick="buyUnit('drillbot')">Upgraden (1100 Yen)</button>
+  </div>
+
+    <div class="unit">
+    <img src="https://static.wikia.nocookie.net/bokunoheroacademia/images/a/a9/Tatami_Nakagame_Hero_Costume.png/revision/latest?cb=20181225203615" alt="Tatami Nakagame" />
+    <h2>Tatami Nakagame</h2>
+    <p>Deggah was ne drecks Fähigkeit.</p>
+    <p><strong>Ertrag:</strong> +47 Yen / Sekunde</p>
+    <p><strong>Anzahl:</strong> <span id="drillbot-count">0</span></p>
+    <button class="btn" id="drillbot-button" onclick="buyUnit('drillbot')">Upgraden (12000 Yen)</button>
+  </div>
+ <button class="btn" onclick="toggleMusic()">🎵 Musik an/aus</button>
+</div>
+<button id="double-boost-btn" onclick="activateDoubleBoost()">Double Boost</button>
+<span id="cooldown-timer"></span>
+
+
+<script>
+  const units = {
+    miner: { count: 0, cost: 15, gps: 0 },
+    excavator: { count: 0, cost: 100, gps: 1 },
+    drillbot: { count: 0, cost: 1100, gps: 8 }
+  };
+
+  let gold = 0;
+
+  function collectGold() {
+    gold += 1;
+    updateDisplay();
+  }
+
+  function buyUnit(type) {
+    const unit = units[type];
+    if (gold >= unit.cost) {
+      gold -= unit.cost;
+      unit.count += 1;
+      unit.cost = Math.floor(unit.cost * 1.25);
+      updateDisplay();
+    }
+  }
+
+  function updateDisplay() {
+    document.getElementById('yen-counter').innerText = `💰 Yen: ${Math.floor(gold)}`;
+    document.getElementById('miner-count').innerText = units.miner.count;
+    document.getElementById('excavator-count').innerText = units.excavator.count;
+    document.getElementById('drillbot-count').innerText = units.drillbot.count;
+
+    document.getElementById('miner-button').innerText = `Upgraden (${units.miner.cost} Yen)`;
+    document.getElementById('excavator-button').innerText = `Upgraden (${units.excavator.cost} Yen)`;
+    document.getElementById('drillbot-button').innerText = `Upgraden (${units.drillbot.cost} Yen)`;
+  }
+
+  function earnPassiveGold() {
+    let gps = (
+      units.miner.count * units.miner.gps +
+      units.excavator.count * units.excavator.gps +
+      units.drillbot.count * units.drillbot.gps
+    );
+    gold += gps / 10; 
+    updateDisplay();
+  }
+
+  setInterval(earnPassiveGold, 100); 
+  updateDisplay();
+
+  let musicPlaying = false;
+const music = document.getElementById('bg-music');
+
+function toggleMusic() {
+  if (musicPlaying) {
+    music.pause();
+  } else {
+    music.play();
+  }
+  musicPlaying = !musicPlaying;
+}
+let upgradesUnlocked = {
+  1: false
+};
+
+/*function unlockUpgrade(id) {
+  if (!upgradesUnlocked[id] && score >= 50) { 
+    upgradesUnlocked[id] = true;
+    
+    document.getElementById(`upgrade${id}-img`).src = "real-upgrade.png";
+    document.getElementById(`upgrade${id}-img`).classList.add("unlocked");
+    document.getElementById(`upgrade${id}-btn`).innerText = "💥 Laser-Boost";
+    
+    activateUpgrade(id);
+  }
+}
+*/
+
+let isBoostActive = false;
+let boostCooldown = false;
+
+function activateDoubleBoost() {
+  if (boostCooldown || isBoostActive) return;
+
+  isBoostActive = true;
+  boostCooldown = true;
+  document.getElementById("double-boost-btn").disabled = true;
+  document.getElementById("double-boost-btn").innerText = "Boost aktiv!";
+  
+  // Boost läuft 30 Sekunden
+  setTimeout(() => {
+    isBoostActive = false;
+    document.getElementById("double-boost-btn").innerText = "Cooldown...";
+  
+
+  // Cooldown läuft 100 Sekunden
+  let cooldown = 100;
+  const timer = setInterval(() => {
+    cooldown--;
+    document.getElementById("cooldown-timer").innerText = ` (${cooldown}s)`;
+
+    if (cooldown <= 0) {
+      clearInterval(timer);
+      boostCooldown = false;
+      document.getElementById("double-boost-btn").disabled = false;
+      document.getElementById("double-boost-btn").innerText = "Double Boost";
+      document.getElementById("cooldown-timer").innerText = "";
+    }
+  }, 1000);
+  }, 30000); // 30 Sekunden
+}
+
+</script>
+
+</body>
+</html>
